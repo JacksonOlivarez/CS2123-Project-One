@@ -62,12 +62,13 @@ public class ResourceManagement
 
                     current.priority += remainingBudget; // Add money spent to dpt priority
                     budgetSpent += remainingBudget; // Add to money spent.
-                    remainingBudget = 0.0;
+
 
                     current.itemsReceived.add(new Item("SCHOLARSHIP", remainingBudget));
 
                     System.out.printf("%-30s - %-30s - $%.2f\n", current.name, "SCHOLARSHIP", remainingBudget);
 
+                    remainingBudget = 0.0;
                 }
 
             } else if (current.itemsDesired.peek().price > remainingBudget){
