@@ -9,7 +9,7 @@ public class ResourceManagement
 {
     private PriorityQueue<Department> departmentPQ; /* priority queue of departments */
     private Double remainingBudget;                 /* the budget left after purchases are made (should be 0 after the constructor runs) */
-    private Double budget;                          /* the total budget allocated */
+    private Double budgetSpent;                          /* the total budget allocated */
 
     public static void printName( )
     {
@@ -28,12 +28,12 @@ public class ResourceManagement
         System.out.println("ITEMS PURCHASED\n----------------------------\n");
         departmentPQ = new PriorityQueue<>();
         remainingBudget = budget;
-        this.budget = 0.0;
+        budgetSpent = 0.0;
         for (String fileName : fileNames) {
             departmentPQ.add(new Department(fileName));
         }
 
-        while (remainingBudget >= 0){
+        while (remainingBudget > 0.0){
             Department current = departmentPQ.poll();
             assert current != null;
             if (!current.itemsDesired.isEmpty() && current.itemsDesired.peek().price < remainingBudget){
@@ -42,37 +42,35 @@ public class ResourceManagement
 
                 current.priority += item.price;
                 remainingBudget -= item.price;
-                this.budget += item.price;
+                budgetSpent += item.price;
 
                 current.itemsReceived.add(item);
 
                 System.out.printf("%-30s - %-30s - $%.2f\n", current.name, item.name, item.price);
 
             } else if (current.itemsDesired.isEmpty()){
-                if (budget >= 1000){
+                if (remainingBudget >= 1000){
                     // $1000 Scholarship
                     current.priority += 1000.00;
                     remainingBudget -= 1000.00;
-                    this.budget += 1000.00;
+                    budgetSpent += 1000.00;
 
                     current.itemsReceived.add(new Item("SCHOLARSHIP", 1000.00));
 
                     System.out.printf("%-30s - %-30s - $%.2f\n", current.name, "SCHOLARSHIP", 1000.00);
                 } else {
-                    // Main Issue: We get to 0.01 budget left...
-                    // Causes an infinite loop bc while loop doesnt know how to handle that
-                    if (budget > 0.01) {
-                        current.priority += remainingBudget; // Add money spent to dpt priority
-                        remainingBudget -= remainingBudget; // Subtract from leftover money
-                        this.budget += remainingBudget; // Add to money spent.
 
-                        current.itemsReceived.add(new Item("SCHOLARSHIP", remainingBudget));
+                    current.priority += remainingBudget; // Add money spent to dpt priority
+                    budgetSpent += remainingBudget; // Add to money spent.
+                    remainingBudget = 0.0;
 
-                        System.out.printf("%-30s - %-30s - $%.2f\n", current.name, "SCHOLARSHIP", remainingBudget);
-                    }
+                    current.itemsReceived.add(new Item("SCHOLARSHIP", remainingBudget));
+
+                    System.out.printf("%-30s - %-30s - $%.2f\n", current.name, "SCHOLARSHIP", remainingBudget);
+
                 }
 
-            } else if (current.itemsDesired.peek().price > budget){
+            } else if (current.itemsDesired.peek().price > remainingBudget){
                 Item item = current.itemsDesired.poll();
                 current.itemsRemoved.add(item);
             }
@@ -94,7 +92,7 @@ public class ResourceManagement
             System.out.println(current.name + "\n");
 
             System.out.printf("%-20s =$%.2f\n", "Total Spent: ", current.priority);
-            System.out.printf("%-30s = %.2f %%\n", "Percentage of Budget", (current.priority / budget) * 100);
+            System.out.printf("%-30s = %.2f %%\n", "Percentage of Budget", (current.priority / budgetSpent) * 100);
 
             System.out.println("----------------------------");
 
