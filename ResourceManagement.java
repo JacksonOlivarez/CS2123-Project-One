@@ -73,11 +73,18 @@ public class ResourceManagement
 
             } else if (current.itemsDesired.peek().price > remainingBudget){
                 Item item = current.itemsDesired.poll();
-                current.itemsRemoved.add(item);
+                System.out.printf("REMOVED : %s from \n", item.name, current.name);
+                current.itemsRemoved.offer(item);
             }
 
             departmentPQ.add(current); // Resorts the Priority Queue with updated values.
 
+        }
+
+        if (remainingBudget <= 0){
+            for (Department d : departmentPQ){
+                d.itemsRemoved.addAll(d.itemsDesired);
+            }
         }
 
     }
@@ -92,7 +99,7 @@ public class ResourceManagement
             Department current = departmentPQ.poll();
             System.out.println(current.name + "\n");
 
-            System.out.printf("%-20s =$%.2f\n", "Total Spent: ", current.priority);
+            System.out.printf("%-20s = $%.2f\n", "Total Spent: ", current.priority);
             System.out.printf("%-30s = %.2f %%\n", "Percentage of Budget", (current.priority / budgetSpent) * 100);
 
             System.out.println("----------------------------");
@@ -132,7 +139,7 @@ class Department implements Comparable<Department>
             name = br.readLine();
             priority = 0.0;
             String line;
-            while((line = br.readLine()) != null){//!(line.equals("\n")) - !((line=br.readLine()).equals("\n"))
+            while((line = br.readLine()) != null){
                 if(line.length() != 0){
                     String listedItem = line;
                     String itemPrice = br.readLine();
