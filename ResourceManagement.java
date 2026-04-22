@@ -25,8 +25,8 @@ public class ResourceManagement
      */
     public ResourceManagement(String[] fileNames, Double budget )
     {
-        System.out.println("ITEMS PURCHASED\n----------------------------\n");
-        departmentPQ = new PriorityQueue<>();
+        System.out.println("\nITEMS PURCHASED\n----------------------------");
+        departmentPQ = new PriorityQueue<>((s1, s2) -> Double.compare(s1.priority, s2.priority));
         remainingBudget = budget;
         budgetSpent = 0.0;
         for (String fileName : fileNames) {
@@ -46,7 +46,8 @@ public class ResourceManagement
 
                 current.itemsReceived.add(item);
 
-                System.out.printf("%-30s - %-30s - $%.2f\n", current.name, item.name, item.price);
+                String formattedPrice = String.format("$%.2f", item.price);
+                System.out.printf("%-45s- %-30s - %30s\n", "Department of " + current.name, item.name, formattedPrice);
 
             } else if (current.itemsDesired.isEmpty()){
                 if (remainingBudget >= 1000){
@@ -55,25 +56,26 @@ public class ResourceManagement
                     remainingBudget -= 1000.00;
                     budgetSpent += 1000.00;
 
-                    current.itemsReceived.add(new Item("SCHOLARSHIP", 1000.00));
+                    current.itemsReceived.add(new Item("Scholarship", 1000.00));
 
-                    System.out.printf("%-30s - %-30s - $%.2f\n", current.name, "SCHOLARSHIP", 1000.00);
+                    String formattedPrice = String.format("$%.2f", 1000.00);
+                    System.out.printf("%-45s- %-30s - %30s\n", "Department of " + current.name, "Scholarship", formattedPrice);
                 } else {
 
                     current.priority += remainingBudget; // Add money spent to dpt priority
                     budgetSpent += remainingBudget; // Add to money spent.
 
 
-                    current.itemsReceived.add(new Item("SCHOLARSHIP", remainingBudget));
+                    current.itemsReceived.add(new Item("Scholarship", remainingBudget));
 
-                    System.out.printf("%-30s - %-30s - $%.2f\n", current.name, "SCHOLARSHIP", remainingBudget);
+                    String formattedPrice = String.format("$%.2f", remainingBudget);
+                    System.out.printf("%-45s- %-30s - %30s\n",  "Department of " + current.name, "Scholarship", formattedPrice);
 
                     remainingBudget = 0.0;
                 }
 
             } else if (current.itemsDesired.peek().price > remainingBudget){
                 Item item = current.itemsDesired.poll();
-                System.out.printf("REMOVED : %s from \n", item.name, current.name);
                 current.itemsRemoved.offer(item);
             }
 
@@ -97,21 +99,32 @@ public class ResourceManagement
     public void printSummary(){
         while (!departmentPQ.isEmpty()){
             Department current = departmentPQ.poll();
-            System.out.println(current.name + "\n");
+            System.out.println("\n\nDepartment of " + current.name);
 
-            System.out.printf("%-20s = $%.2f\n", "Total Spent: ", current.priority);
-            System.out.printf("%-30s = %.2f %%\n", "Percentage of Budget", (current.priority / budgetSpent) * 100);
+            System.out.printf("%-17s = $%.2f\n", "Total Spent", current.priority);
+            System.out.printf("%-17s = %.2f%%\n", "Percent of Budget", (current.priority / budgetSpent) * 100);
 
             System.out.println("----------------------------");
 
-            System.out.println("ITEMS RECEIVED");
-            for (Item item : current.itemsReceived){
-                System.out.printf("%-30s - $%.2f\n", item.name, item.price);
+            if (!current.itemsReceived.isEmpty()) {
+                System.out.println("ITEMS RECEIVED");
+                for (Item item : current.itemsReceived) {
+                    String formattedPrice = String.format("$%.2f", item.price);
+                    System.out.printf("%-30s - %30s\n", item.name, formattedPrice);
+                }
+                System.out.println();
             }
+
             System.out.println("ITEMS NOT RECEIVED");
-            for (Item item : current.itemsRemoved){
-                System.out.printf("%-30s - $%.2f\n", item.name, item.price);
+            for (Item item : current.itemsRemoved) {
+                String formattedPrice = String.format("$%.2f", item.price);
+                System.out.printf("%-30s - %30s\n", item.name, formattedPrice);
             }
+            if (departmentPQ.isEmpty()){
+                System.out.println("\n");
+            }
+
+
 
         }
     }
